@@ -15,43 +15,37 @@ router.get("/", authenticate, requireRole("admin"), async (req, res) => {
   }
 });
 
-// Add a new complaint (authenticated users)
+// Add a complaint (authenticated users)
 router.post("/add", authenticate, async (req, res) => {
   try {
-    const complaint = new Complaint({
+    const complaint = await Complaint.create({
       user: req.user.id,
       title: req.body.title,
       description: req.body.description,
     });
-
-    await complaint.save();
-    res.status(201).json({ message: "Complaint added successfully", complaint });
+    res.status(201).json({ message: "Complaint added", complaint });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Update a complaint (admin only)
+// Update complaint (admin only)
 router.put("/:id", authenticate, requireRole("admin"), async (req, res) => {
   try {
-    const complaint = await Complaint.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
-    res.json(complaint);
+    const updated = await Complaint.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Not found" });
+    res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Delete a complaint (admin only)
+// Delete complaint (admin only)
 router.delete("/:id", authenticate, requireRole("admin"), async (req, res) => {
   try {
-    const complaint = await Complaint.findByIdAndDelete(req.params.id);
-    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
-    res.json({ message: "Complaint deleted successfully" });
+    const deleted = await Complaint.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Not found" });
+    res.json({ message: "Complaint deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
