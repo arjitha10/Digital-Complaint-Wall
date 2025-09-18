@@ -1,23 +1,23 @@
-const mongoose = require('mongoose');
+// src/config/db.js
+import mongoose from "mongoose";
 
-async function connectToDatabase() {
-  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/complaint-wall';
+export const connectToDatabase = async () => {
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI not set in environment variables");
+  }
 
   try {
-    mongoose.set('strictQuery', true);
-    await mongoose.connect(mongoUri, {
-      autoIndex: true,
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
-    console.log('Connected to MongoDB successfully:', mongoUri);
-    const collections = (await mongoose.connection.db.listCollections().toArray()).map((c) => c.name);
-    console.log('Existing collections:', collections);
-  } catch (error) {
-    console.error('MongoDB connection error:', { message: error.message, stack: error.stack });
-    process.exit(1);
+    console.log("✅ MongoDB connected successfully");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err.message);
+    throw err;
   }
-}
+};
 
-module.exports = { connectToDatabase };
 
 
 
