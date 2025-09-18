@@ -1,20 +1,14 @@
 import mongoose from "mongoose";
 
-const complaintSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, trim: true },
-    description: { type: String, required: true },
-    category: { type: String, required: true },
-    priority: { type: String, enum: ["High", "Medium", "Low"], default: "Low" },
-    status: { type: String, enum: ["Pending", "In Progress", "Resolved"], default: "Pending" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  },
-  { timestamps: true }
-);
+const complaintSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  status: { type: String, default: "pending" },
+  createdAt: { type: Date, default: Date.now },
+});
 
 const Complaint = mongoose.model("Complaint", complaintSchema);
 
 export default Complaint;
-
 
 
