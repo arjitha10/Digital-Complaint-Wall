@@ -4,7 +4,7 @@ dotenv.config();
 
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { connectToDatabase } from "./src/lib/db.js";
+import { connectToDatabase } from "./src/config/db.js";
 import User from "./src/models/User.js";
 import Complaint from "./src/models/Complaint.js";
 
@@ -34,7 +34,7 @@ async function run() {
   // Clear existing complaints
   await Complaint.deleteMany({});
 
-  // Generate complaint number
+  // Function to generate complaint number
   const generateComplaintNumber = () => {
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substring(2, 7);
@@ -47,7 +47,7 @@ async function run() {
       complaintNumber: generateComplaintNumber(),
       studentId: student._id,
       category: "Hostel",
-      description: "Water leakage in bathroom of Room 205, Block A. The ceiling is dripping water continuously.",
+      description: "Water leakage in bathroom of Room 205, Block A. Ceiling is dripping water.",
       priority: "High",
       status: "Open",
       contactEmail: studentEmail
@@ -56,7 +56,7 @@ async function run() {
       complaintNumber: generateComplaintNumber(),
       studentId: student._id,
       category: "Mess",
-      description: "Food quality has deteriorated significantly. The rice is often undercooked and vegetables are stale.",
+      description: "Food quality is poor. Rice undercooked, vegetables stale.",
       priority: "Medium",
       status: "Under Review",
       contactEmail: studentEmail
@@ -65,17 +65,17 @@ async function run() {
       complaintNumber: generateComplaintNumber(),
       studentId: student._id,
       category: "Internet",
-      description: "WiFi connection is very slow in the library area. Cannot access online resources properly.",
+      description: "WiFi slow in library. Cannot access online resources.",
       priority: "Medium",
       status: "Resolved",
-      adminNote: "New routers installed in library. Speed should be improved now.",
+      adminNote: "New routers installed. Speed improved.",
       contactEmail: studentEmail
     },
     {
       complaintNumber: generateComplaintNumber(),
       studentId: student._id,
       category: "Classroom",
-      description: "Projector in Room 101 is not working properly. Images are blurry and colors are distorted.",
+      description: "Projector in Room 101 not working. Images blurry.",
       priority: "High",
       status: "Open",
       contactEmail: studentEmail
@@ -84,7 +84,7 @@ async function run() {
       complaintNumber: generateComplaintNumber(),
       studentId: student._id,
       category: "Library",
-      description: "Air conditioning is not working in the reading section. It gets very hot during afternoon.",
+      description: "Air conditioning not working. Gets hot in afternoon.",
       priority: "Low",
       status: "Open",
       contactEmail: studentEmail
@@ -101,9 +101,7 @@ async function run() {
   await mongoose.connection.close();
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error("❌ Seed failed:", err);
   process.exit(1);
 });
-
-
