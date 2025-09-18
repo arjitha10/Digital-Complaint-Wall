@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { authenticate } from "../middleware/auth.js";
+import { authenticate } from "../middleware/auth.js"; // only once!
 
 const router = express.Router();
 
@@ -41,9 +41,11 @@ router.post("/login", async (req, res, next) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({ message: "Login successful", token });
   } catch (err) {
@@ -62,6 +64,7 @@ router.get("/me", authenticate, async (req, res, next) => {
 });
 
 export default router;
+
 
 
 
