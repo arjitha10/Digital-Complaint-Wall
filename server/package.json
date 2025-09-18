@@ -1,21 +1,10 @@
-{
-  "name": "digital-complaint-wall-server",
-  "version": "1.0.0",
-  "type": "module",   <-- ADD THIS
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
-  ...
-}
 
 {
   "name": "digital-complaint-wall-server",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
