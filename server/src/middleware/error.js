@@ -1,14 +1,14 @@
-function notFoundHandler(req, res, next) {
-  res.status(404).json({ message: 'Route not found' });
-}
+// src/middleware/error.js
 
-// eslint-disable-next-line no-unused-vars
-function globalErrorHandler(err, req, res, next) {
-  // eslint-disable-next-line no-console
-  console.error(err);
-  res.status(err.status || 500).json({ message: err.message || 'Server error' });
-}
+// 404 Not Found handler
+export const notFoundHandler = (req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+};
 
-module.exports = { notFoundHandler, globalErrorHandler };
-
-
+// Global error handler
+export const globalErrorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
+};
