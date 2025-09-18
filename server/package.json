@@ -1,10 +1,12 @@
-
 {
   "name": "digital-complaint-wall-server",
   "version": "1.0.0",
   "private": true,
-  "main": "src/index.js",
   "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
@@ -27,4 +29,5 @@
     "nodemon": "^3.1.4"
   }
 }
+
 
