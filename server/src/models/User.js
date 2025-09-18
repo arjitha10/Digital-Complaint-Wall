@@ -1,17 +1,16 @@
+// src/models/User.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true }, // Will be hashed before saving
-    role: { type: String, enum: ["student", "admin"], default: "student", index: true },
+    name: String,
+    email: { type: String, unique: true },
+    password: String,
+    role: { type: String, enum: ["admin", "student"], default: "student" },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-
-export default User;
+export default mongoose.model("User", userSchema);
 
 
