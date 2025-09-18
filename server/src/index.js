@@ -11,7 +11,7 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import complaintRoutes from "./routes/complaints.js";
-import analyticsRoutes from "./routes/analytics.js";   // ✅ now works
+import analyticsRoutes from "./routes/analytics.js";
 import filesRoutes from "./routes/files.js";
 import { notFoundHandler, globalErrorHandler } from "./middleware/error.js";
 import User from "./models/User.js";
@@ -61,7 +61,7 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
-app.use("/api/analytics", analyticsRoutes);   // ✅ fixed
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/files", filesRoutes);
 
 app.get("/api/health", (req, res) => {
@@ -126,6 +126,14 @@ connectToDatabase()
       setTimeout(() => {
         console.warn("Forcing shutdown after timeout.");
         process.exit(0);
-      }, 3000
+      }, 3000).unref(); // ✅ fixed syntax
+    };
 
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on("SIGINT", () => shutdown("SIGINT"));
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to database", err);
+    process.exit(1);
+  });
 
