@@ -1,59 +1,64 @@
+// src/routes/complaints.js
 import express from "express";
-import Complaint from "../models/Complaint.js";
 import { authenticate, requireRole } from "../middleware/auth.js";
+import Complaint from "../models/Complaint.js";
 
 const router = express.Router();
 
-// All complaint routes require authentication
-router.use(authenticate);
-
-// POST /api/complaints
-router.post("/", async (req, res, next) => {
+// Get all complaints (admin only)
+router.get("/", authenticate, requireRole("admin"), async (req, res) => {
   try {
-    const { title, description, category, priority } = req.body;
-    const complaint = await Complaint.create({
-      title,
-      description,
-      category,
-      priority,
-      createdBy: req.user.id,
-    });
-    res.status(201).json({ message: "Complaint submitted", complaint });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /api/complaints
-router.get("/", async (req, res, next) => {
-  try {
-    const complaints =
-      req.user.role === "admin"
-        ? await Complaint.find().populate("createdBy", "name email")
-        : await Complaint.find({ createdBy: req.user.id });
-
+    const complaints = await Complaint.find();
     res.json(complaints);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 });
 
-// PATCH /api/complaints/:id/status (admin only)
-router.patch("/:id/status", requireRole("admin"), async (req, res, next) => {
+// Add a new complaint (authenticated users)
+router.post("/add", authenticate, async (req, res) => {
   try {
-    const { status } = req.body;
+    const complaint = new Complaint({
+      user: req.user.id,
+      title: req.body.title,
+      description: req.body.description,
+    });
+
+    await complaint.save();
+    res.status(201).json({ message: "Complaint added successfully", complaint });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update a complaint (admin only)
+router.put("/:id", authenticate, requireRole("admin"), async (req, res) => {
+  try {
     const complaint = await Complaint.findByIdAndUpdate(
       req.params.id,
-      { status },
+      req.body,
       { new: true }
     );
-    res.json({ message: "Status updated", complaint });
+    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
+    res.json(complaint);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete a complaint (admin only)
+router.delete("/:id", authenticate, requireRole("admin"), async (req, res) => {
+  try {
+    const complaint = await Complaint.findByIdAndDelete(req.params.id);
+    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
+    res.json({ message: "Complaint deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
 export default router;
+
 
 
 
