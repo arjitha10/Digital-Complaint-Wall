@@ -1,3 +1,4 @@
+// src/index.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -22,28 +23,16 @@ const app = express();
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // Security & utils
 app.use(helmet());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:5173",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors({ origin: ["http://localhost:3000", "http://localhost:5173"], credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// Basic rate limiting
+// Rate limiting
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -53,10 +42,8 @@ app.use(
   })
 );
 
-// Root welcome route
-app.get("/", (req, res) => {
-  res.type("text/plain").send("Welcome to Digital Complaint Wall API");
-});
+// Root route
+app.get("/", (req, res) => res.type("text/plain").send("Welcome to Digital Complaint Wall API"));
 
 // API routes
 app.use("/api/auth", authRoutes);
@@ -64,9 +51,7 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/files", filesRoutes);
 
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 // Error handlers
 app.use(notFoundHandler);
@@ -79,39 +64,28 @@ console.log("JWT_SECRET:", process.env.JWT_SECRET ? "SET" : "NOT SET");
 console.log("MONGO_URI:", process.env.MONGO_URI ? "SET" : "NOT SET");
 console.log("PORT:", PORT);
 
+// Connect to DB and start server
 connectToDatabase()
-  .then(() => {
-    console.log("✅ Database connected successfully");
-
+  .then(async () => {
     // Seed admin user if not exists
-    (async () => {
-      try {
-        const adminEmail = "admin@digitalcomplaintwall.com";
-        const adminPassword = "admin123";
+    const adminEmail = "admin@digitalcomplaintwall.com";
+    const adminPassword = "admin123";
 
-        let admin = await User.findOne({ email: adminEmail });
+    let admin = await User.findOne({ email: adminEmail });
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
-        if (!admin) {
-          const hashedPassword = await bcrypt.hash(adminPassword, 12);
-          admin = await User.create({
-            name: "Administrator",
-            email: adminEmail,
-            password: hashedPassword,
-            role: "admin",
-          });
-          console.log("✅ Seeded default admin:", adminEmail);
-        } else {
-          const hashedPassword = await bcrypt.hash(adminPassword, 12);
-          await User.findByIdAndUpdate(admin._id, { password: hashedPassword });
-          console.log("✅ Updated admin password:", adminEmail);
-        }
-
-        const testLogin = await bcrypt.compare(adminPassword, admin.password);
-        console.log("✅ Admin login test:", testLogin ? "PASSED" : "FAILED");
-      } catch (seedErr) {
-        console.error("❌ Admin seeding failed:", seedErr.message);
-      }
-    })();
+    if (!admin) {
+      admin = await User.create({
+        name: "Administrator",
+        email: adminEmail,
+        password: hashedPassword,
+        role: "admin",
+      });
+      console.log("✅ Seeded default admin:", adminEmail);
+    } else {
+      await User.findByIdAndUpdate(admin._id, { password: hashedPassword });
+      console.log("✅ Updated admin password:", adminEmail);
+    }
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server listening on port ${PORT}`);
@@ -126,7 +100,7 @@ connectToDatabase()
       setTimeout(() => {
         console.warn("Forcing shutdown after timeout.");
         process.exit(0);
-      }, 3000).unref(); // ✅ fixed syntax
+      }, 3000).unref();
     };
 
     process.on("SIGTERM", () => shutdown("SIGTERM"));
@@ -136,4 +110,5 @@ connectToDatabase()
     console.error("❌ Failed to connect to database", err);
     process.exit(1);
   });
+
 
