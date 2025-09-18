@@ -14,7 +14,7 @@ import complaintRoutes from "./routes/complaints.js";
 import analyticsRoutes from "./routes/analytics.js";
 import filesRoutes from "./routes/files.js";
 import { notFoundHandler, globalErrorHandler } from "./middleware/error.js";
-import User from "./models/User.js";
+import User from "./models/User.js";   // ✅ keep only this one
 
 dotenv.config();
 
