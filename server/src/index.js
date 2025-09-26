@@ -29,7 +29,7 @@ app.use(helmet());
 
 // Configurable CORS origins via env (comma-separated)
 const defaultCorsOrigins = [
-  'http://localhost:3000',
+  'https://digital-complaint-wall-ljsi.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
